@@ -4,13 +4,16 @@ import { Badge } from "../ui/badge";
 import { ShowCard } from "../ShowCard";
 import { Button } from "../ui/button";
 
+import { useParams } from 'react-router-dom';
+
 interface ResidentDetailProps {
-  residentId: string;
   onBack: () => void;
   onShowClick: (showId: string) => void;
 }
 
-export function ResidentDetail({ residentId, onBack, onShowClick }: ResidentDetailProps) {
+export function ResidentDetail({ onBack, onShowClick }: ResidentDetailProps) {
+  const { residentId } = useParams();
+  if (!residentId) return null;
   const residents: Record<string, any> = {
     "1": {
       name: "Alex Rivera",

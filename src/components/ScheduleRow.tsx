@@ -6,10 +6,12 @@ interface ScheduleRowProps {
   title: string;
   resident: string;
   status: "live" | "upcoming" | "past";
+  genres: string[];
+  tags: string[];
   onClick?: () => void;
 }
 
-export function ScheduleRow({ time, title, resident, status, onClick }: ScheduleRowProps) {
+export function ScheduleRow({ time, title, resident, status, genres, tags, onClick }: ScheduleRowProps) {
   return (
     <div
       onClick={onClick}
@@ -23,7 +25,19 @@ export function ScheduleRow({ time, title, resident, status, onClick }: Schedule
 
       <div>
         <h4 className="mb-2">{title}</h4>
-        <p className="text-sm text-muted-foreground">{resident}</p>
+        <p className="text-sm text-muted-foreground mb-2">{resident}</p>
+        <div className="flex flex-wrap gap-2">
+          {genres.map((genre) => (
+            <Badge key={genre} variant="secondary" className="text-xs">
+              {genre}
+            </Badge>
+          ))}
+          {tags.map((tag) => (
+            <Badge key={tag} variant="outline" className="text-xs text-primary/70">
+              {tag}
+            </Badge>
+          ))}
+        </div>
       </div>
 
       <div className="flex items-center">

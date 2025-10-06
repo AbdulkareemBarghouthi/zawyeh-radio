@@ -7,15 +7,10 @@ interface HomeProps {
 
 export function Home({ onShowClick }: HomeProps) {
   return (
-    <div className="pb-32">
-      {/* Hero Section */}
-      <section className="pt-36">
+    <div className="pb-32 relative">
+      <section className="pt-36 relative">
         <div className="max-w-6xl mx-auto px-8">
-          <AudioPlayer
-            isLive={true}
-            showTitle="Electronic Echoes"
-            resident="Alex Rivera"
-          />
+          <AudioPlayer />
         </div>
       </section>
 

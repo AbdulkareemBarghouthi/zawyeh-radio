@@ -4,13 +4,16 @@ import { Badge } from "../ui/badge";
 import { ShowCard } from "../ShowCard";
 import { Button } from "../ui/button";
 
+import { useParams } from 'react-router-dom';
+
 interface ShowDetailProps {
-  showId: string;
   onBack: () => void;
   onShowClick: (showId: string) => void;
 }
 
-export function ShowDetail({ showId, onBack, onShowClick }: ShowDetailProps) {
+export function ShowDetail({ onBack, onShowClick }: ShowDetailProps) {
+  const { showId } = useParams();
+  if (!showId) return null;
   // Mock show data based on ID
   const shows: Record<string, any> = {
     "1": {

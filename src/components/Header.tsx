@@ -1,4 +1,4 @@
-import { Radio } from "lucide-react";
+import starSvg from "../assets/star.svg";
 
 interface HeaderProps {
   currentPage: string;
@@ -16,15 +16,9 @@ export function Header({ currentPage, onNavigate }: HeaderProps) {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-lg border-b border-border">
       <div className="max-w-7xl mx-auto px-8 h-20 flex items-center justify-between">
-        <button
-          onClick={() => onNavigate("home")}
-          className="flex items-center gap-3 hover:opacity-70 transition-opacity"
-        >
-          <Radio className="w-5 h-5" />
-          <span className="tracking-tight">WAVELENGTH</span>
-        </button>
+        <img style={{width: '30px'}} src={starSvg} alt="Star" />
 
-        <nav className="flex items-center gap-10">
+        <nav className="flex items-center gap-6 sm:gap-10">
           {navItems.map((item) => (
             <button
               key={item.id}
