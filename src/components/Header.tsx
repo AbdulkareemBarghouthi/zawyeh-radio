@@ -9,8 +9,7 @@ export function Header({ currentPage, onNavigate }: HeaderProps) {
   const navItems = [
     { id: "home", label: "Live" },
     { id: "schedule", label: "Schedule" },
-    { id: "residents", label: "Residents" },
-    { id: "about", label: "About" },
+    { id: "residents", label: "Residents" }
   ];
 
   return (
