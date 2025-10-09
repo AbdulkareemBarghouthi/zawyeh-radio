@@ -7,10 +7,10 @@ const API_KEY = "pk_5d456436ee8d4bb3b9a88e64d457a07e";
 const API_BASE = "https://api.radiocult.fm/api/station/zawyeh-radio";
 
 interface ResidentsProps {
-  onResidentClick: (residentId: string) => void;
+  // Removed onResidentClick prop
 }
 
-export function Residents({ onResidentClick }: ResidentsProps) {
+export function Residents() {
   const [residents, setResidents] = useState<Artist[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -66,7 +66,6 @@ export function Residents({ onResidentClick }: ResidentsProps) {
                 name={resident.name}
                 genres={resident.genres || []}
                 logo={resident.logo}
-                onClick={() => onResidentClick(resident.id)}
               />
             ))}
           </div>

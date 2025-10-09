@@ -24,25 +24,18 @@ export function Footer({ isLive }: FooterProps) {
 
           <div className="flex items-center gap-6">
             <a
-              href="#"
+              href="https://www.instagram.com/zawyeh.radio"
               className="text-muted-foreground hover:text-foreground transition-colors"
               aria-label="Instagram"
             >
               <Instagram className="w-5 h-5" />
-            </a>
-            <a
-              href="#"
-              className="text-muted-foreground hover:text-foreground transition-colors"
-              aria-label="Twitter"
-            >
-              <Twitter className="w-5 h-5" />
             </a>
           </div>
         </div>
 
         <div className="mt-8 pt-6 border-t border-border text-center">
           <p className="text-sm text-muted-foreground">
-            © 2025 Wavelength Radio. Broadcasting from everywhere.
+            © 2025 Zawyeh Radio.  زاوية راديو.
           </p>
         </div>
       </div>

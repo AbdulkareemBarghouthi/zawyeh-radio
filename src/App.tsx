@@ -3,19 +3,20 @@ import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { Header } from "./components/Header";
 import { Footer } from "./components/Footer";
 import { MiniPlayer } from "./components/MiniPlayer";
+import { FloatingYouTube } from "./components/FloatingYouTube";
 import { Home } from "./components/pages/Home";
 import { Schedule } from "./components/pages/Schedule";
 import { Residents } from "./components/pages/Residents";
 import { ShowDetail } from "./components/pages/ShowDetail";
 import { ResidentDetail } from "./components/pages/ResidentDetail";
 import { About } from "./components/pages/About";
-import som3aSvg from "./assets/som3a.svg";
 import { AudioPlayer } from "./components/AudioPlayer";
 
 export default function App() {
   const navigate = useNavigate();
   const location = useLocation();
   const [showMiniPlayer, setShowMiniPlayer] = useState(false);
+  const [showFloatingVideo, setShowFloatingVideo] = useState(true);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -69,7 +70,7 @@ export default function App() {
       <div className="fixed inset-0 w-full h-full flex items-center justify-center pointer-events-none">
         <div className="w-full h-full max-w-[1200px] max-h-[1200px] flex items-center justify-center">
           <img
-            src={som3aSvg}
+            src="/som3a.svg"
             alt="Background Pattern"
             style={{
               width: "400px",
@@ -92,11 +93,11 @@ export default function App() {
             <Route path="/" element={<Home onShowClick={handleShowClick} />} />
             <Route
               path="/schedule"
-              element={<Schedule onShowClick={handleShowClick} />}
+              element={<Schedule />}
             />
             <Route
               path="/residents"
-              element={<Residents onResidentClick={handleResidentClick} />}
+              element={<Residents />}
             />
             <Route
               path="/show/:showId"
@@ -121,6 +122,12 @@ export default function App() {
           isLive={true}
           showTitle="Electronic Echoes"
           resident="Alex Rivera"
+        />
+        
+        <FloatingYouTube
+          videoId="jfKfPfyJRdk" // lofi hip hop radio - beats to relax/study to
+          isVisible={showFloatingVideo}
+          onMinimize={() => setShowFloatingVideo(false)}
         />
       </div>
     </div>

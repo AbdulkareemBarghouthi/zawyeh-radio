@@ -144,7 +144,7 @@ export function AudioPlayer({ variant = "full", isLive = false, showTitle, resid
         <button
           onClick={togglePlay}
           disabled={!!error}
-          className="w-12 h-12 text-accent-foreground flex items-center justify-center hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-card disabled:opacity-50 disabled:cursor-not-allowed relative"
+          className="w-12 h-12 text-accent-foreground flex items-center justify-center hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-card disabled:opacity-50 disabled:cursor-not-allowed relative border border-border rounded-full"
           aria-label={isPlaying ? "Pause" : "Play"}
         >
   
@@ -212,7 +212,7 @@ export function AudioPlayer({ variant = "full", isLive = false, showTitle, resid
         <button
           onClick={togglePlay}
           disabled={!!error}
-          className="w-16 h-16 bg-contain bg-no-repeat bg-center text-accent-foreground flex items-center justify-center hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-card disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-16 h-16 bg-contain bg-no-repeat bg-center text-accent-foreground flex items-center justify-center hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-card disabled:opacity-50 disabled:cursor-not-allowed border border-border rounded-full"
           aria-label={isPlaying ? "Pause" : "Play"}
         >
           

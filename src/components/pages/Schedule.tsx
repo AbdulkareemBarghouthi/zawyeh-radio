@@ -6,7 +6,7 @@ import type { Artist, ArtistsResponse } from "../../types/artist";
 import axios from "axios";
 
 interface ScheduleProps {
-  onShowClick: (showId: string) => void;
+  // Removed onShowClick prop
 }
 
 interface ScheduleItem {
@@ -110,7 +110,7 @@ function formatScheduleEvent(event: ScheduleEvent, artists: Artist[]): ScheduleI
   };
 }
 
-export function Schedule({ onShowClick }: ScheduleProps) {
+export function Schedule() {
   const [activeDay, setActiveDay] = useState("today");
   const [scheduleItems, setScheduleItems] = useState<ScheduleItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -201,14 +201,10 @@ export function Schedule({ onShowClick }: ScheduleProps) {
                   {scheduleItems.map((show) => (
                     <div
                       key={show.id}
-                      className={[
-                        "group transition-colors duration-200",
-                        "hover:bg-white/[0.04] rounded-2xl -mx-2 px-2 py-1 cursor-pointer",
-                      ].join(" ")}
+                      className="group transition-colors duration-200"
                     >
                       <ScheduleRow
                         {...show}
-                        onClick={() => onShowClick(show.id)}
                       />
                     </div>
                   ))}
