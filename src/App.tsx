@@ -125,7 +125,7 @@ export default function App() {
         />
         
         <FloatingYouTube
-          videoId="BrR9Tkmng_o" // Zawyeh Radio Live Stream
+          channelId="UCbs3Tu0wKdQtVDKrrp4Zocg" // Zawyeh Radio Channel
           isVisible={showFloatingVideo}
           onMinimize={() => setShowFloatingVideo(false)}
         />

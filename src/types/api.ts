@@ -64,6 +64,7 @@ export interface CurrentShow {
   end: string;
   scheduleRangeStartUtc: string;
   scheduleRangeEndUtc: string;
+  youtubeVideoId?: string; // Dynamic YouTube video ID for current live stream
 }
 
 export interface TrackMetadata {
@@ -75,4 +76,11 @@ export interface TrackMetadata {
     [key: string]: string;
   };
   playoutStartIsoTimestamp: string;
+}
+
+export interface LiveStreamResponse {
+  success: boolean;
+  youtubeVideoId: string;
+  isLive: boolean;
+  streamTitle?: string;
 }

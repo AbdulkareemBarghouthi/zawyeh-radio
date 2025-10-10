@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from "react";
-import { Play, Pause, Volume2, VolumeX } from "lucide-react";
+import { Play, Pause, Volume2, VolumeX, Radio, Clock, User, Music } from "lucide-react";
 import { Slider } from "./ui/slider";
-import { VUMeter } from "./VUMeter";
 import axios from "axios";
 import type { CurrentShowResponse } from "../types/api";
 
@@ -57,6 +56,8 @@ export function AudioPlayer({ variant = "full", isLive = false, showTitle, resid
   const [isMuted, setIsMuted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [currentTime, setCurrentTime] = useState("00:00");
+  const [connectionStatus, setConnectionStatus] = useState<"connecting" | "connected" | "disconnected">("disconnected");
 
   useEffect(() => {
     const fetchCurrentShow = async () => {
@@ -87,17 +88,40 @@ export function AudioPlayer({ variant = "full", isLive = false, showTitle, resid
     return () => clearInterval(interval);
   }, []);
 
+  // Update current time
+  useEffect(() => {
+    const updateTime = () => {
+      const now = new Date();
+      setCurrentTime(now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }));
+    };
+
+    updateTime();
+    const timeInterval = setInterval(updateTime, 1000);
+
+    return () => clearInterval(timeInterval);
+  }, []);
+
   useEffect(() => {
     audioRef.current = new Audio(STREAM_URL);
     audioRef.current.preload = "none";
 
     const audio = audioRef.current;
-    audio.addEventListener("playing", () => setIsLoading(false));
+    audio.addEventListener("loadstart", () => setConnectionStatus("connecting"));
+    audio.addEventListener("canplay", () => setConnectionStatus("connected"));
+    audio.addEventListener("playing", () => {
+      setIsLoading(false);
+      setConnectionStatus("connected");
+    });
     audio.addEventListener("waiting", () => setIsLoading(true));
     audio.addEventListener("error", (e) => {
       setError("Error loading stream. Please try again later.");
       setIsPlaying(false);
       setIsLoading(false);
+      setConnectionStatus("disconnected");
+    });
+    audio.addEventListener("ended", () => {
+      setIsPlaying(false);
+      setConnectionStatus("disconnected");
     });
 
     return () => {
@@ -120,12 +144,15 @@ export function AudioPlayer({ variant = "full", isLive = false, showTitle, resid
 
     if (isPlaying) {
       audioRef.current.pause();
+      setConnectionStatus("disconnected");
     } else {
       setError(null);
       setIsLoading(true);
+      setConnectionStatus("connecting");
       audioRef.current.play().catch((err) => {
         setError("Error playing stream. Please try again.");
         setIsLoading(false);
+        setConnectionStatus("disconnected");
       });
     }
     setIsPlaying(!isPlaying);
@@ -138,6 +165,23 @@ export function AudioPlayer({ variant = "full", isLive = false, showTitle, resid
     setIsMuted(!isMuted);
   };
 
+  const getConnectionStatusColor = () => {
+    switch (connectionStatus) {
+      case "connected": return "text-green-500";
+      case "connecting": return "text-yellow-500";
+      case "disconnected": return "text-red-500";
+      default: return "text-muted-foreground";
+    }
+  };
+
+  const formatShowTime = (startDateUtc: string, endDateUtc: string) => {
+    const start = new Date(startDateUtc);
+    const end = new Date(endDateUtc);
+    const startTime = start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+    const endTime = end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+    return `${startTime} - ${endTime}`;
+  };
+
   if (variant === "compact") {
     return (
       <div className="flex items-center gap-5 w-full">
@@ -147,7 +191,6 @@ export function AudioPlayer({ variant = "full", isLive = false, showTitle, resid
           className="w-12 h-12 text-accent-foreground flex items-center justify-center hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-card disabled:opacity-50 disabled:cursor-not-allowed relative border border-border rounded-full"
           aria-label={isPlaying ? "Pause" : "Play"}
         >
-  
           {isLoading ? (
             <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin relative z-10" />
           ) : isPlaying ? (
@@ -159,28 +202,54 @@ export function AudioPlayer({ variant = "full", isLive = false, showTitle, resid
 
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
-            {isLive && (
+            {isLiveState && (
               <div className="flex items-center gap-1.5">
-                <div className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
-                <span className="text-xs tracking-wider text-accent">LIVE</span>
+                <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: '#ef4444' }} />
+                <span className="text-xs tracking-wider" style={{ color: '#ef4444' }}>LIVE</span>
               </div>
             )}
-            <h4 className="truncate">
-              {currentShow?.content.title || "No Show Playing"}
-            </h4>
+            <Radio className={`w-3 h-3 ${getConnectionStatusColor()}`} />
           </div>
-          {currentShow?.metadata?.artist && (
-            <p className="text-sm text-muted-foreground truncate">
-              {currentShow.metadata.artist}
-            </p>
-          )}
+          
+          <h4 className="truncate font-medium">
+            {currentShow?.content.title || "No Show Playing"}
+          </h4>
+          
+          <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
+            {currentShow?.metadata?.artist && (
+              <div className="flex items-center gap-1">
+                <Music className="w-3 h-3" />
+                <span className="truncate">{currentShow.metadata.artist}</span>
+              </div>
+            )}
+            {currentShow?.content.startDateUtc && currentShow?.content.endDateUtc && (
+              <div className="flex items-center gap-1">
+                <Clock className="w-3 h-3" />
+                <span>{formatShowTime(currentShow.content.startDateUtc, currentShow.content.endDateUtc)}</span>
+              </div>
+            )}
+          </div>
+          
           {error && (
             <p className="text-xs text-destructive mt-1 truncate">{error}</p>
           )}
         </div>
 
         <div className="flex items-center gap-4">
-          {isPlaying && isLive && !isLoading && <VUMeter />}
+          <div className="text-xs text-muted-foreground font-mono">
+            {currentTime}
+          </div>
+          {isPlaying && isLiveState && !isLoading && (
+            <div 
+              className="inline-block"
+              style={{ 
+                animation: 'spin 1s linear infinite',
+                transformOrigin: 'center'
+              }}
+            >
+              <img src="/spark.svg" alt="Playing" className="w-6 h-6" />
+            </div>
+          )}
           <button
             onClick={toggleMute}
             className="text-muted-foreground hover:text-foreground transition-colors"
@@ -192,15 +261,6 @@ export function AudioPlayer({ variant = "full", isLive = false, showTitle, resid
               <Volume2 className="w-5 h-5" />
             )}
           </button>
-          <div className="w-24">
-            <Slider
-              value={volume}
-              onValueChange={setVolume}
-              max={100}
-              step={1}
-              className="cursor-pointer"
-            />
-          </div>
         </div>
       </div>
     );
@@ -215,7 +275,6 @@ export function AudioPlayer({ variant = "full", isLive = false, showTitle, resid
           className="w-16 h-16 bg-contain bg-no-repeat bg-center text-accent-foreground flex items-center justify-center hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-card disabled:opacity-50 disabled:cursor-not-allowed border border-border rounded-full"
           aria-label={isPlaying ? "Pause" : "Play"}
         >
-          
           {isLoading ? (
             <div className="w-6 h-6 border-2 border-current border-t-transparent rounded-full animate-spin relative z-10" />
           ) : isPlaying ? (
@@ -226,25 +285,86 @@ export function AudioPlayer({ variant = "full", isLive = false, showTitle, resid
         </button>
       </div>
 
-      <div className="flex items-start justify-between mb-8">
-        <div className="flex-1">
-          {isLive && (
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-2.5 h-2.5 rounded-full bg-accent animate-pulse" />
-              <span className="text-sm tracking-wider text-accent">LIVE</span>
+      <div className="flex-1">
+        <div className="flex items-start justify-between mb-6">
+          <div className="flex-1">
+            <div className="flex items-center gap-4 mb-4">
+              {isLiveState && (
+                <div className="flex items-center gap-2">
+                  <div className="w-2.5 h-2.5 rounded-full animate-pulse" style={{ backgroundColor: '#ef4444' }} />
+                  <span className="text-sm tracking-wider font-medium" style={{ color: '#ef4444' }}>LIVE</span>
+                </div>
+              )}
+              <div className="flex items-center gap-2">
+                <Radio className={`w-4 h-4 ${getConnectionStatusColor()}`} />
+                <span className="text-sm text-muted-foreground">
+                  {connectionStatus === "connected" ? "Connected" : 
+                   "Disconnected"}
+                </span>
+              </div>
+            </div>
+            
+            <h2 className="text-2xl font-bold mb-2">
+              {currentShow?.content.title || "No Show Playing"}
+            </h2>
+            
+            <div className="space-y-2 mb-4">
+              {currentShow?.metadata?.artist && (
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <Music className="w-4 h-4" />
+                  <span>Now playing: {currentShow.metadata.artist}</span>
+                </div>
+              )}
+              
+              {currentShow?.content.startDateUtc && currentShow?.content.endDateUtc && (
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <Clock className="w-4 h-4" />
+                  <span>{formatShowTime(currentShow.content.startDateUtc, currentShow.content.endDateUtc)}</span>
+                </div>
+              )}
+            </div>
+            
+            <div className="flex items-center gap-4 mb-4">
+              <span className="text-lg font-mono text-muted-foreground">{currentTime}</span>
+              {isPlaying && (
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                  <span className="text-sm text-green-500">Streaming</span>
+                </div>
+              )}
+            </div>
+            
+            <div className="flex items-center gap-6">
+              <button
+                onClick={toggleMute}
+                className="text-muted-foreground hover:text-foreground transition-colors"
+                aria-label={isMuted ? "Unmute" : "Mute"}
+              >
+                {isMuted || volume[0] === 0 ? (
+                  <VolumeX className="w-6 h-6" />
+                ) : (
+                  <Volume2 className="w-6 h-6" />
+                )}
+              </button>
+            </div>
+            
+            {error && <p className="text-sm text-destructive mt-4">{error}</p>}
+          </div>
+          
+          {isPlaying && isLiveState && !isLoading && (
+            <div className="ml-8">
+              <div 
+                className="inline-block"
+                style={{ 
+                  animation: 'spin 1s linear infinite',
+                  transformOrigin: 'center'
+                }}
+              >
+                <img src="/spark.svg" alt="Playing" className="w-8 h-8" />
+              </div>
             </div>
           )}
-          <h2 className="mb-2">
-            {currentShow?.content.title || "No Show Playing"}
-          </h2>
-          {currentShow?.metadata?.artist && (
-            <p className="text-muted-foreground">
-              {currentShow.metadata.artist}
-            </p>
-          )}
-          {error && <p className="text-sm text-destructive mt-2">{error}</p>}
         </div>
-        {isPlaying && isLive && !isLoading && <VUMeter />}
       </div>
     </div>
   );

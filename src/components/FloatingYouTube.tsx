@@ -2,13 +2,13 @@ import { useState, useEffect } from "react";
 import { X, Maximize2, Minimize2 } from "lucide-react";
 
 interface FloatingYouTubeProps {
-  videoId?: string;
+  channelId?: string;
   isVisible?: boolean;
   onMinimize?: () => void;
 }
 
 export function FloatingYouTube({ 
-  videoId = "dQw4w9WgXcQ", // Default to a sample video
+  channelId = "UCbs3Tu0wKdQtVDKrrp4Zocg", // Default to your channel
   isVisible = true,
   onMinimize 
 }: FloatingYouTubeProps) {
@@ -81,7 +81,20 @@ export function FloatingYouTube({
     }
   };
 
-  const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&controls=1&modestbranding=1&rel=0`;
+  // For live streams, use the channel's live stream URL
+  const embedUrl = `https://www.youtube.com/embed/live_stream?channel=${channelId}&autoplay=1&mute=1&controls=1&modestbranding=1&rel=0&enablejsapi=1&playsinline=1`;
+
+  // Function to handle iframe load and seek to live
+  const handleIframeLoad = (iframe: HTMLIFrameElement) => {
+    // For live streams, try to message the iframe to seek to live head
+    setTimeout(() => {
+      try {
+        iframe.contentWindow?.postMessage('{"event":"command","func":"seekTo","args":[999999999,true]}', '*');
+      } catch (error) {
+        console.log('Could not seek to live head:', error);
+      }
+    }, 2000); // Wait 2 seconds for the video to load
+  };
 
   const getContainerSize = () => {
     if (isMinimized) return { width: '140px', height: '60px' };
@@ -173,6 +186,7 @@ export function FloatingYouTube({
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
               title="Zawyeh Radio Live Stream"
+              onLoad={(e) => handleIframeLoad(e.target as HTMLIFrameElement)}
             />
           </div>
 
