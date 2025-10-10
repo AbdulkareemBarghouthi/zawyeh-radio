@@ -140,11 +140,7 @@ export function Schedule() {
         if (response.success && response.schedules) {
           const events = response.schedules;
 
-          const items = events.map(event => formatScheduleEvent(event, artists)).sort((a, b) => {
-            const timeA = a.time.split(" - ")[0];
-            const timeB = b.time.split(" - ")[0];
-            return timeA.localeCompare(timeB);
-          });
+          const items = events.map(event => formatScheduleEvent(event, artists));
 
           setScheduleItems(items);
         } else {

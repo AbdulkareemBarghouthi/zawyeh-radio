@@ -125,7 +125,7 @@ export default function App() {
         />
         
         <FloatingYouTube
-          videoId="jfKfPfyJRdk" // lofi hip hop radio - beats to relax/study to
+          videoId="BrR9Tkmng_o" // Zawyeh Radio Live Stream
           isVisible={showFloatingVideo}
           onMinimize={() => setShowFloatingVideo(false)}
         />

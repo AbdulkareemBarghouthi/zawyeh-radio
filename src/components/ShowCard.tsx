@@ -72,7 +72,7 @@ export function ShowCard({
       <h3 className="mb-3 text-xl md:text-2xl text-white font-bold tracking-tight relative z-10">
         {title}
       </h3>
-      <p className="text-lg text-white/80 font-medium relative z-10">{resident}</p>
+      <p className="font-medium relative z-10" style={{ fontSize: '14px', color: '#fb7185' }}>{resident}</p>
 
       {genre && (
         <p className="mt-4 text-sm uppercase tracking-wider text-white/60 font-medium relative z-10">

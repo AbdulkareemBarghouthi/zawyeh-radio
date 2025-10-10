@@ -27,6 +27,7 @@ export interface ScheduleEvent {
   end: string;
   scheduleRangeStartUtc: string;
   scheduleRangeEndUtc: string;
+  artistIds?: string[];
   metadata?: TrackMetadata;
 }
 

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { ShowCard } from "./ShowCard";
 import type { ScheduleResponse, ScheduleEvent } from "../types/api";
+import type { Artist, ArtistsResponse } from "../types/artist";
 import axios from "axios";
 
 export interface Show {
@@ -37,7 +38,25 @@ async function fetchSchedule(startDate: string, endDate: string, timezone?: stri
   return response.data;
 }
 
-function formatEventToShow(event: ScheduleEvent): Show {
+async function fetchArtists() {
+  try {
+    const { data } = await axios.get<ArtistsResponse>(`${API_BASE}/artists`, {
+      headers: {
+        "x-api-key": API_KEY,
+      },
+    });
+    return data.artists;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      throw new Error(
+        error.response?.data?.message || "Failed to fetch artists"
+      );
+    }
+    throw error;
+  }
+}
+
+function formatEventToShow(event: ScheduleEvent, artists: Artist[]): Show {
   const startDate = new Date(event.startDateUtc);
   const isToday = new Date().toDateString() === startDate.toDateString();
   const isTomorrow = new Date(Date.now() + 86400000).toDateString() === startDate.toDateString();
@@ -50,10 +69,27 @@ function formatEventToShow(event: ScheduleEvent): Show {
 
   let timePrefix = isToday ? "Today" : isTomorrow ? "Tomorrow" : startDate.toLocaleDateString();
 
+  // Map artistIds to artist names
+  let resident = "Various Artists";
+  if (event.artistIds && event.artistIds.length > 0) {
+    const artistNames = event.artistIds
+      .map(artistId => {
+        const artist = artists.find(a => a.id === artistId);
+        return artist ? artist.name : null;
+      })
+      .filter(Boolean); // Remove null values
+    
+    if (artistNames.length > 0) {
+      resident = artistNames.join(", ");
+    }
+  } else if (event.metadata?.artist) {
+    resident = event.metadata.artist;
+  }
+
   return {
     id: event.id,
     title: event.title,
-    resident: event.metadata?.artist || "Various Artists",
+    resident: resident,
     time: `${timePrefix} ${timeString}`,
     status: new Date() > new Date(event.startDateUtc) ? "replay" : "upcoming",
     genre: "Radio Show", // Could be extracted from metadata or description if available
@@ -71,17 +107,23 @@ export function FeaturedShows({ onShowClick, timezone = "Asia/Amman" }: Featured
         setLoading(true);
         setError(null);
         
-        // Get schedule for next 7 days
-        const now = new Date();
-        const weekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
-        
-        const startDate = now.toISOString();
-        const endDate = weekFromNow.toISOString();
-        
-        const schedule = await fetchSchedule(startDate, endDate, timezone);
+        // Fetch artists and schedule concurrently
+        const [artists, schedule] = await Promise.all([
+          fetchArtists(),
+          (async () => {
+            // Get schedule for next 7 days
+            const now = new Date();
+            const weekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+            
+            const startDate = now.toISOString();
+            const endDate = weekFromNow.toISOString();
+            
+            return await fetchSchedule(startDate, endDate, timezone);
+          })()
+        ]);
         
         if (schedule.success && Array.isArray(schedule.schedules)) {
-          const formattedShows = schedule.schedules.map(formatEventToShow);
+          const formattedShows = schedule.schedules.map(event => formatEventToShow(event, artists));
           const upcomingShows = formattedShows
             .filter(show => show.status === "upcoming")
             .slice(0, 3); // Show next 3 upcoming shows
@@ -115,7 +157,6 @@ export function FeaturedShows({ onShowClick, timezone = "Asia/Amman" }: Featured
               <ShowCard
                 key={show.id}
                 {...show}
-                onClick={() => onShowClick(show.id)}
               />
             ))}
           </div>
