@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Play, Pause, Volume2, VolumeX, Radio, Clock, User, Music } from "lucide-react";
 import { Slider } from "./ui/slider";
+import { motion } from "framer-motion";
 import axios from "axios";
 import type { CurrentShowResponse } from "../types/api";
 
@@ -239,17 +240,16 @@ export function AudioPlayer({ variant = "full", isLive = false, showTitle, resid
           <div className="text-xs text-muted-foreground font-mono">
             {currentTime}
           </div>
-          {isPlaying && isLiveState && !isLoading && (
-            <div 
-              className="inline-block"
-              style={{ 
-                animation: 'spin 1s linear infinite',
-                transformOrigin: 'center'
-              }}
-            >
-              <img src="/spark.svg" alt="Playing" className="w-6 h-6" />
-            </div>
-          )}
+          <motion.div
+            animate={isPlaying && isLiveState && !isLoading ? { rotate: 360 } : { rotate: 0 }}
+            transition={{
+              duration: 3,
+              repeat: isPlaying && isLiveState && !isLoading ? Infinity : 0,
+              ease: "linear"
+            }}
+          >
+            <img src="/spark.svg" alt="Playing" className="w-6 h-6" />
+          </motion.div>
           <button
             onClick={toggleMute}
             className="text-muted-foreground hover:text-foreground transition-colors"
@@ -351,19 +351,18 @@ export function AudioPlayer({ variant = "full", isLive = false, showTitle, resid
             {error && <p className="text-sm text-destructive mt-4">{error}</p>}
           </div>
           
-          {isPlaying && isLiveState && !isLoading && (
-            <div className="ml-8">
-              <div 
-                className="inline-block"
-                style={{ 
-                  animation: 'spin 1s linear infinite',
-                  transformOrigin: 'center'
-                }}
-              >
-                <img src="/spark.svg" alt="Playing" className="w-8 h-8" />
-              </div>
-            </div>
-          )}
+          <div className="ml-8">
+            <motion.div
+              animate={isPlaying && isLiveState && !isLoading ? { rotate: 360 } : { rotate: 0 }}
+              transition={{
+                duration: 3,
+                repeat: isPlaying && isLiveState && !isLoading ? Infinity : 0,
+                ease: "linear"
+              }}
+            >
+              <img src="/spark.svg" alt="Playing" className="w-8 h-8" />
+            </motion.div>
+          </div>
         </div>
       </div>
     </div>

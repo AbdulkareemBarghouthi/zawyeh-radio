@@ -74,8 +74,9 @@ export default function App() {
             alt="Background Pattern"
             style={{
               width: "400px",
+              opacity: 0.4
             }}
-            className="w-full h-full object-contain opacity-[0.15]"
+            className="w-full h-full object-contain"
           />
         </div>
       </div>
